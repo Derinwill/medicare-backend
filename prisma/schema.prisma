@@ -1,0 +1,118 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  role      Role
+  createdAt DateTime @default(now())
+
+  gender  Gender
+  // Relations
+  patient Patient?
+  doctor  Doctor?
+}
+
+model Patient {
+  id      String  @id @default(uuid())
+  userId  String  @unique
+  name    String
+  dob     String
+  address String?
+  uniqId  String?
+  phone   String?
+
+  user                    User                      @relation(fields: [userId], references: [id])
+  records                 MedicalRecord[]
+  PatientDoctorPermission PatientDoctorPermission[]
+  Logs                    LogsRecord[]
+}
+
+model Doctor {
+  id            String          @id @default(uuid())
+  userId        String          @unique
+  speciality    String?
+  name          String
+  hospital_name String
+  user          User            @relation(fields: [userId], references: [id])
+  records       MedicalRecord[]
+
+  PatientDoctorPermission PatientDoctorPermission[]
+  Logs                    LogsRecord[]
+}
+
+model MedicalRecord {
+  id        String @id @default(uuid())
+  patientId String
+  doctorId  String
+  condition String
+  note      String
+
+  createdAt DateTime? @default(now())
+
+  patient Patient @relation(fields: [patientId], references: [id])
+  doctor  Doctor? @relation(fields: [doctorId], references: [id])
+}
+
+model PatientDoctorPermission {
+  id        String     @id @default(uuid())
+  patientId String
+  doctorId  String
+  role      AccessRole
+  doctor    Doctor     @relation(fields: [doctorId], references: [id])
+  patient   Patient    @relation(fields: [patientId], references: [id])
+
+  @@unique([doctorId, patientId])
+}
+
+model LogsRecord {
+  id        String     @id @default(uuid())
+  patientId String
+  action    LogsAction
+  createdBy String
+  createdAt DateTime   @default(now())
+  patient   Patient    @relation(fields: [patientId], references: [id])
+  doctor    Doctor     @relation(fields: [createdBy], references: [id])
+}
+
+enum Role {
+  PATIENT
+  DOCTOR
+  ADMIN
+}
+
+enum LogsAction {
+  VIEW_MEDICAL_RECORD
+  CREATE_MEDICAL_RECORD
+  GRANTED_ACCESS
+}
+
+enum RecordType {
+  DIAGNOSIS
+  PRESCRIPTION
+  LAB_TEST
+  IMAGING
+}
+
+enum AccessRole {
+  VIEWER
+  EDITOR
+}
+
+enum Gender {
+  MALE
+  FEMALE
+}
