@@ -6,6 +6,7 @@ import { AuthModule } from './auth/auth.module';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MedicalRecordModule } from './medical_record/medical_record.module';
+import { PatientLogModule } from './PatientLogs/patient_log.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { MedicalRecordModule } from './medical_record/medical_record.module';
       }),
     }),
     MedicalRecordModule,
+    PatientLogModule
   ],
   controllers: [AppController],
   providers: [AppService],

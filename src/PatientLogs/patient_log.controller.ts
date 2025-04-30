@@ -5,11 +5,11 @@ import { UserDecorator } from "src/auth/decorators/user.decorator";
 import { User } from "src/utils/types";
 
 @Controller()
-export class PatientLog{
+export class PatientLogController{
     constructor(private patientLogService:PatientLogService){}
     @Get('patient-logs')
     @UseGuards(PatientGuard)
     getAllPatientLogs(@UserDecorator() user: User){
-        return this.patientLogService.getAllPatientLogs()
+        return this.patientLogService.getAllPatientLogs(user)
     }
 }
